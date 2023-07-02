@@ -77,14 +77,14 @@ data_sprite_caja  db  2c, 2c, 2c, 2c, 2c, 2c, 2c, 2c
 
 dim_sprite_obj    db   08, 08
 
-data_sprite_obj   db  2c, 2c, 2c, 2c, 2c, 2c, 2c, 2c
-                  db  2c, 2c, 2c, 2c, 2c, 2c, 2c, 2c
-				  db  2c, 2c, 2c, 2c, 2c, 2c, 2c, 2c
-				  db  2c, 2c, 2c, 2c, 2c, 2c, 2c, 2c
-				  db  2c, 2c, 2c, 2c, 2c, 2c, 2c, 2c
-				  db  2c, 2c, 2c, 2c, 2c, 2c, 2c, 2c
-				  db  2c, 2c, 2c, 2c, 2c, 2c, 2c, 2c
-				  db  2c, 2c, 2c, 2c, 2c, 2c, 2c, 2c
+data_sprite_obj   db  2c, 2c, 2c, 8a, 8a, 2c, 2c, 2c
+                  db  2c, 2c, 2c, 2c, 8a, 2c, 2c, 2c
+				  db  2c, 27, 27, 27, 0f, 27, 27, 2c
+				  db  27, 0f, 0f, 27, 27, 27, 27, 27
+				  db  27, 0f, 27, 27, 27, 27, 27, 27
+				  db  27, 27, 27, 27, 27, 27, 27, 27
+				  db  2c, 27, 27, 27, 27, 0f, 27, 2c
+				  db  2c, 2c, 27, 27, 0f, 27, 2c, 2c
 
 mapa              db   3e8 dup (0)
 
@@ -100,13 +100,22 @@ mis_datos_nom	  db "JUAN JOSUE ZULETA BEB$"
 mis_datos_car	  db "202006353$"
 
 tag_error_archivo db "ERROR AL ABRIR EL ARCHIVO$"
+tag_error_archivo2 db "NO EXISTE SENTENCIA DE JUGADOR$"
+tag_error_archivo3 db "NO COINCIDEN LA CANTIDAD DE$"
+tag_error_archivo4 db "SENTENCIAS DE CAJAS Y OBJETIVOS$"
+
 
 iniciar_juego db "INICIAR JUEGO$"
 cargar_nivel  db "CARGAR NIVEL$"
 configuracion db "CONFIGURACION$"
 puntajes      db "PUNTAJES ALTOS$"
 salir         db "SALIR$"
+
 iniciales     db "JJZB - 202006353$"
+cronometro 	  db "00:00:00$"
+puntaje 	  db "0000$"
+
+cont_punt_mov db 0
 
 ;;CONFIGURACION
 configuracion_titulo db "CONTROLES ACTUALES$"
@@ -115,6 +124,9 @@ configuracion_arriba db "ARRIBA:$"
 configuracion_abajo db "ABAJO:$"
 configuracion_izquierda db "IZQUIERDA:$"
 configuracion_derecha db "DERECHA:$"
+
+menu_pausa_titulo  db "CONTINUAR$"
+menu_pausa_titulo2 db "REGRESAR$"
 
 configuracion_nueva_arriba db "FLECHA ARRIBA$"
 configuracion_nueva_abajo db "FLECHA ABAJO$"
@@ -146,7 +158,13 @@ nivel_cero        db "NIV.00",00
 nivel_uno         db "NIV.01",00
 nivel_dos         db "NIV.02",00
 
+cont_sent_jug 	  db 0
+cont_sent_caj  	  db 0
+cont_sent_obj 	  db 0
+
 niv_by_keyboard   db 20 dup (00)
+
+sesion_activa     db 0
 
 ;;buffer general
 buffer_entrada  db 20, 00
@@ -195,6 +213,14 @@ inicio:
 	cmp AL, 4
 	je fin
 
+aceptar_opciones_menu_pause:
+	mov sesion_activa, 01
+	call menu_pause
+	mov AL, [opcion]
+	cmp AL, 0
+	je ciclo_juego
+	cmp AL, 1
+	je inicio
 
 aceptar_opciones_menu_conf:
 	call menu_conf
@@ -216,6 +242,33 @@ ciclo_juego:
 
 		push DX
 		mov DX, offset iniciales
+		mov AH, 09
+		int 21
+		pop DX
+
+		mov DL, cont_punt_mov
+		mov puntaje[3], DL
+
+		mov DL, 19
+		mov DH, 01
+		mov BH, 00
+		mov AH, 02
+		int 10
+
+		push DX
+		mov DX, offset puntaje
+		mov AH, 09
+		int 21
+		pop DX
+
+		mov DL, 19
+		mov DH, 18
+		mov BH, 00
+		mov AH, 02
+		int 10
+
+		push DX
+		mov DX, offset cronometro
 		mov AH, 09
 		int 21
 		pop DX
@@ -243,8 +296,95 @@ archivo_no_encontrado:
 
 	jmp inicio
 
+archivo_no_encontrado2:
+	call clear_pantalla
+
+	mov DL, 07
+	mov DH, 09
+	mov BH, 00
+	mov AH, 02
+	int 10
+
+	push DX
+	mov DX, offset tag_error_archivo
+	mov AH, 09
+	int 21
+	pop DX
+
+	mov DL, 04
+	mov DH, 0b
+	mov BH, 00
+	mov AH, 02
+	int 10
+
+	push DX
+	mov DX, offset tag_error_archivo2
+	mov AH, 09
+	int 21
+	pop DX
+
+	call clear_map_buffer
+
+	mov CX, 15
+	call prebas
+
+	jmp inicio
+
+archivo_no_encontrado3:
+	call clear_pantalla
+
+	mov DL, 07
+	mov DH, 09
+	mov BH, 00
+	mov AH, 02
+	int 10
+
+	push DX
+	mov DX, offset tag_error_archivo
+	mov AH, 09
+	int 21
+	pop DX
+
+	mov DL, 06
+	mov DH, 0b
+	mov BH, 00
+	mov AH, 02
+	int 10
+
+	push DX
+	mov DX, offset tag_error_archivo3
+	mov AH, 09
+	int 21
+	pop DX
+
+	mov DL, 04
+	mov DH, 0d
+	mov BH, 00
+	mov AH, 02
+	int 10
+
+	push DX
+	mov DX, offset tag_error_archivo4
+	mov AH, 09
+	int 21
+	pop DX
+
+	call clear_map_buffer
+
+	mov CX, 15
+	call prebas
+
+	jmp inicio
+
+
 
 cargar_un_nivel_auto:
+	cmp [sesion_activa], 01
+	je ciclo_juego
+	mov cont_sent_jug , 0
+	mov cont_sent_caj , 0
+	mov cont_sent_obj , 0
+
 	mov AL, 00
 	mov DX, offset nivel_cero
 	mov AH, 3d
@@ -271,6 +411,12 @@ cargar_un_nivel_auto3:
 	mov [handle_nivel], AX
 	jmp ciclo_lineas
 
+clear_map_buffer:
+	mov DI, offset mapa
+	mov Cx, 3e8
+	mov AL, 00
+	call memset
+	ret
 
 configuracion_de_controles:
 	call clear_pantalla
@@ -436,6 +582,102 @@ configuracion_de_controles:
 
 
 
+menu_pause:
+	call clear_pantalla
+	mov AL, 0
+	mov [opcion], AL      ;; reinicio de la variable de salida
+	mov AL, 2
+	mov [maximo], AL
+	mov AX, 70
+	mov BX, 50
+	mov [xFlecha], AX
+	mov [yFlecha], BX
+
+	mov DL, 11
+	mov DH, 0A
+	mov BH, 00
+	mov AH, 02
+	int 10
+
+	push DX
+	mov DX, offset menu_pausa_titulo
+	mov AH, 09
+	int 21
+	pop DX
+
+	mov DL, 11
+	mov DH, 0C
+	mov BH, 00
+	mov AH, 02
+	int 10
+
+	push DX
+	mov DX, offset menu_pausa_titulo2
+	mov AH, 09
+	int 21
+	pop DX
+	
+	call pintar_flecha
+	
+entrada_menu_pause:
+	mov AH, 00
+	int 16
+	cmp AH, 48
+	je restar_opcion_menu_pause
+	cmp AH, 50
+	je sumar_opcion_menu_pause
+	cmp AH, 3b  ;; le doy F1
+	je fin_menu_pause
+	jmp entrada_menu_pause
+restar_opcion_menu_pause:
+	mov AL, [opcion]
+	dec AL
+	cmp AL, 0ff
+	je volver_a_cero2
+	mov [opcion], AL
+	jmp mover_flecha_menu_pause
+sumar_opcion_menu_pause:
+	mov AL, [opcion]
+	mov AH, [maximo]
+	inc AL
+	cmp AL, AH
+	je volver_a_maximo2
+	mov [opcion], AL
+	jmp mover_flecha_menu_pause
+volver_a_cero2:
+	mov AL, 0
+	mov [opcion], AL
+	jmp mover_flecha_menu_pause
+volver_a_maximo2:
+	mov AL, [maximo]
+	dec AL
+	mov [opcion], AL
+	jmp mover_flecha_menu_pause
+mover_flecha_menu_pause:
+	mov AX, [xFlecha]
+	mov BX, [yFlecha]
+	mov SI, offset dim_sprite_vacio
+	mov DI, offset data_sprite_vacio
+	call pintar_sprite
+	mov AX, 70
+	mov BX, 50
+	mov CL, [opcion]
+ciclo_ubicar_flecha_menu_pause:
+	cmp CL, 0
+	je pintar_flecha_menu_pause
+	dec CL
+	add BX, 10
+	jmp ciclo_ubicar_flecha_menu_pause
+pintar_flecha_menu_pause:
+	mov [xFlecha], AX
+	mov [yFlecha], BX
+	call pintar_flecha
+	jmp entrada_menu_pause
+	;;
+fin_menu_pause:
+	ret
+
+
 menu_conf:
 	call clear_pantalla
 	mov AL, 0
@@ -592,7 +834,7 @@ restar_opcion_menu_conf:
 	mov AL, [opcion]
 	dec AL
 	cmp AL, 0ff
-	je volver_a_cero2
+	je volver_a_cero3
 	mov [opcion], AL
 	jmp mover_flecha_menu_conf
 sumar_opcion_menu_conf:
@@ -600,14 +842,14 @@ sumar_opcion_menu_conf:
 	mov AH, [maximo]
 	inc AL
 	cmp AL, AH
-	je volver_a_maximo2
+	je volver_a_maximo3
 	mov [opcion], AL
 	jmp mover_flecha_menu_conf
-volver_a_cero2:
+volver_a_cero3:
 	mov AL, 0
 	mov [opcion], AL
 	jmp mover_flecha_menu_conf
-volver_a_maximo2:
+volver_a_maximo3:
 	mov AL, [maximo]
 	dec AL
 	mov [opcion], AL
@@ -638,6 +880,7 @@ fin_menu_conf:
 	
 
 cargar_un_nivel:
+		call clear_map_buffer
 		call clear_pantalla
 		;; pedir nombre de archivo
 		
@@ -682,7 +925,9 @@ cargar_un_nivel:
 		int 21
 		jc archivo_no_encontrado
 		mov [handle_nivel], AX
-		jmp ciclo_lineas
+		mov cont_sent_jug , 0
+		mov cont_sent_caj , 0
+		mov cont_sent_obj , 0
 		;;
 ciclo_lineas:
 		mov BX, [handle_nivel]
@@ -733,6 +978,7 @@ es_pared:
 		mov [elemento_actual], AL
 		jmp continuar_parseo0
 es_caja:
+		inc cont_sent_caj
 		mov AL, CAJA
 		mov [elemento_actual], AL
 		jmp continuar_parseo0
@@ -741,10 +987,12 @@ es_suelo:
 		mov [elemento_actual], AL
 		jmp continuar_parseo0
 es_objetivo:
+		inc cont_sent_obj
 		mov AL, OBJETIVO
 		mov [elemento_actual], AL
 		jmp continuar_parseo0
 es_jugador:
+		inc cont_sent_jug
 		mov AL, JUGADOR
 		mov [elemento_actual], AL
 		jmp continuar_parseo0
@@ -824,6 +1072,15 @@ fin_parseo:
 		int 21
 		;;
 		int 03
+
+		mov AH, cont_sent_jug
+		cmp AH, 01
+		jne archivo_no_encontrado2
+
+		mov AH, cont_sent_caj
+		cmp AH, cont_sent_obj
+		jne archivo_no_encontrado3
+
 		jmp ciclo_juego
 		jmp fin
 
@@ -1470,6 +1727,10 @@ entrada_juego:
 		jz fin_entrada_juego  ;; nada en el buffer de entrada
 		mov AH, 00
 		int 16
+
+		cmp AH, 03c
+		je aceptar_opciones_menu_pause
+
 		;; AH <- scan code
 		cmp AH, [control_arriba]
 		je mover_jugador_arr
@@ -1482,6 +1743,7 @@ entrada_juego:
 		cmp AH, 3c
 		ret
 mover_jugador_arr:
+		inc cont_punt_mov
 		mov AH, [xJugador]
 		mov AL, [yJugador]
 		dec AL
@@ -1505,6 +1767,7 @@ mover_jugador_arr:
 hay_pared_arriba:
 		ret
 mover_jugador_aba:
+		inc cont_punt_mov
 		mov AH, [xJugador]
 		mov AL, [yJugador]
 		inc AL
@@ -1528,6 +1791,7 @@ mover_jugador_aba:
 hay_pared_abajo:
 		ret
 mover_jugador_izq:
+		inc cont_punt_mov
 		mov AH, [xJugador]
 		mov AL, [yJugador]
 		dec AH
@@ -1551,6 +1815,7 @@ mover_jugador_izq:
 hay_pared_izquierda:
 		ret
 mover_jugador_der:
+		inc cont_punt_mov
 		mov AH, [xJugador]
 		mov AL, [yJugador]
 
@@ -1560,8 +1825,8 @@ mover_jugador_der:
 		call obtener_de_mapa
 		pop AX
 		
-		cmp DL, CAJA
-		je mover_caja_der
+		; cmp DL, CAJA
+		; je mover_caja_der
 
 		;; DL <- elemento en mapa
 		cmp DL, PARED

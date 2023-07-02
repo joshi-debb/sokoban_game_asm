@@ -1,0 +1,95 @@
+# paredes
+pared 02, 01
+pared 03, 01
+pared 04, 01
+pared 05, 01
+pared 06, 01
+-
+pared 00, 02
+pared 01, 02
+pared 02, 02
+suelo 03, 02
+suelo 04, 02
+suelo 05, 02
+pared 06, 02
+-
+pared 00, 03
+suelo 01, 03
+suelo 02, 03
+suelo 03, 03
+suelo 04, 03
+suelo 05, 03
+pared 06, 03
+-
+pared 00, 04
+pared 01, 04
+pared 02, 04
+suelo 03, 04
+suelo 04, 04
+suelo 05, 04
+pared 06, 04
+-
+pared 00, 05
+suelo 01, 05
+pared 02, 05
+pared 03, 05
+suelo 04, 05
+suelo 05, 05
+pared 06, 05
+-
+pared 00, 06
+suelo 01, 06
+pared 02, 06
+suelo 03, 06
+suelo 04, 06
+suelo 05, 06
+pared 06, 06
+pared 07, 06
+-
+pared 00, 07
+suelo 01, 07
+suelo 02, 07
+suelo 03, 07
+suelo 04, 07
+suelo 05, 07
+suelo 06, 07
+pared 07, 07
+-
+pared 00, 08
+suelo 01, 08
+suelo 02, 08
+suelo 03, 08
+suelo 04, 08
+suelo 05, 08
+suelo 06, 08
+pared 07, 08
+-
+pared 00, 09
+pared 01, 09
+pared 02, 09
+pared 03, 09
+pared 04, 09
+pared 05, 09
+pared 06, 09
+pared 07, 09
+
+# cajas
+caja  03, 03
+caja  04, 04
+caja  04, 05
+caja  01, 07
+caja  03, 07
+caja  04, 07
+caja  05, 07
+
+# objetivos
+objetivo 01, 03
+objetivo 05, 04
+objetivo 01, 05
+objetivo 04, 06
+objetivo 03, 07
+objetivo 06, 07
+objetivo 04, 08
+
+# jugador
+jugador  02, 03
