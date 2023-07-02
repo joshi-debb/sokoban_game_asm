@@ -1,0 +1,9 @@
+.vscode
+*.exe
+*.obj
+*.bin
+*.htm
+*.txt
+*.00
+*.01
+*.02
