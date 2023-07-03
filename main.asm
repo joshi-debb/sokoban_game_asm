@@ -125,17 +125,16 @@ configuracion_abajo db "ABAJO:$"
 configuracion_izquierda db "IZQUIERDA:$"
 configuracion_derecha db "DERECHA:$"
 
-menu_pausa_titulo  db "CONTINUAR$"
-menu_pausa_titulo2 db "REGRESAR$"
+configuracion_guardar db "CAMBIAR CONTROLES$"
+configuracion_salir db "REGRESAR$"
 
 configuracion_nueva_arriba db "FLECHA ARRIBA$"
 configuracion_nueva_abajo db "FLECHA ABAJO$"
 configuracion_nueva_izquierda db "FLECHA IZQUIERDA$"
 configuracion_nueva_derecha db "FLECHA DERECHA$"
 
-configuracion_guardar db "CAMBIAR CONTROLES$"
-configuracion_salir db "REGRESAR$"
-
+menu_pausa_titulo  db "CONTINUAR$"
+menu_pausa_titulo2 db "REGRESAR$"
 
 ask_filename  db "INGRESE NOMBRE DE ARCHIVO: ",0a,0a,20,"$"
 
@@ -882,8 +881,7 @@ fin_menu_conf:
 cargar_un_nivel:
 		call clear_map_buffer
 		call clear_pantalla
-		;; pedir nombre de archivo
-		
+
 		mov DL, 1
 		mov DH, 03
 		mov BH, 00
@@ -929,28 +927,28 @@ cargar_un_nivel:
 		mov cont_sent_caj , 0
 		mov cont_sent_obj , 0
 		;;
+
 ciclo_lineas:
 		mov BX, [handle_nivel]
 		call siguiente_linea
-		cmp DL, 0ff      ;; fin-del-archivo?
+		cmp DL, 0ff
 		je fin_parseo
-		cmp DH, 00      ;; línea-con-algo?
+		cmp DH, 00     
 		je ciclo_lineas
-		;;;;;;;;;;;;;;;;;;;;;;;
-		;; lógica del parseo ;;
-		;;;;;;;;;;;;;;;;;;;;;;;
-		;; al principio del buffer de la línea está: pared, caja, jugador, suelo, objetivo
+		
 		mov DI, offset linea
 		push DI
 		mov SI, offset tk_pared
 		call cadena_igual
-		cmp DL, 0ff               ;; cadenas iguales
-		je es_pared
+		cmp DL, 0ff 
+		
+		              
+		je es_pared 
 		pop DI
 		push DI
 		mov SI, offset tk_caja
 		call cadena_igual
-		cmp DL, 0ff               ;; cadenas iguales
+		cmp DL, 0ff 
 		je es_caja
 		pop DI
 		push DI
@@ -1167,7 +1165,7 @@ fin_pintar_sprite:
 delay:
 		push SI
 		push DI
-		mov SI, 0100
+		mov SI, 0200
 cicloA:
 		mov DI, 0130
 		dec SI
